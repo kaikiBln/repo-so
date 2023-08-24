@@ -1,5 +1,6 @@
 # repo-so
 repositório para as atividades de Sistemas Operacionais
+
 Kaiki Bellini Barbosa - 32249969
 Linus Leonan Kiche Madera - 32234961
 Luana Miho Yasuda - 42148677
