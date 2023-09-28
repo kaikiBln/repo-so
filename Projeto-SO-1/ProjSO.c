@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define STACK_SIZE 1024*64
+#define FIBER_STACK 1024*64
 
 struct c {
     int saldo;
@@ -18,16 +18,32 @@ typedef struct c conta;
 conta from, to;
 int valor;
 pthread_mutex_t mtx;
+static int flag = 0;
 
 void* transferencia(void* arg) {
     pthread_mutex_lock(&mtx);
-    if (from.saldo >= valor) {
+
+    if (from.saldo >= valor && flag == 0) {
         from.saldo -= valor;
         to.saldo += valor;
+        if (from.saldo < 0) {
+            to.saldo -= valor;
+            from.saldo += valor;
+        }
+        if (from.saldo == 0) flag = 1;
     }
-    printf("Transferência concluída com sucesso!\n");
-    printf("Saldo de c1: %d\n", from.saldo);
-    printf("Saldo de c2: %d\n", to.saldo);
+
+    if (to.saldo >= valor && flag == 1) {
+        to.saldo -= valor;
+        from.saldo += valor;
+        if (to.saldo < 0) {
+            from.saldo -= valor;
+            to.saldo += valor;
+        }
+        if (to.saldo == 0) flag = 0;
+    }
+
+    printf("Transferência realizada!\nSaldo de c1: $%d\nSaldo de c2: $%d\n", from.saldo, to.saldo);
     pthread_mutex_unlock(&mtx);
     return NULL;
 }
